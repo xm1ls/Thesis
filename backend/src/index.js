@@ -4,6 +4,8 @@ import cookieParser from 'cookie-parser'
 import cors from 'cors'
 import mongoose from 'mongoose'
 
+import path from "path"
+
 import authRoutes from './routes/auth.route.js'
 import pixelRoutes from './routes/pixel.route.js'
 import canvasRoutes from './routes/canvas.route.js'
@@ -18,6 +20,7 @@ import Canvas from './models/canvas.model.js'
 dotenv.config();
 
 const PORT = process.env.PORT;
+const __dirname = path.resolve();
 
 app.use(express.json());
 app.use(cookieParser());
@@ -46,6 +49,14 @@ app.use('/api/draw/', pixelRoutes);
 app.use('/api/canvas/', canvasRoutes);
 app.use('/api/lobby/', lobbyRoutes);
 app.use('/api/message/', messageRoutes);
+
+if(process.env.NODE_ENV==="production") {
+    app.use(express.static(path.join(__dirname, "../frontend/dist")));
+
+    app.get("*", (req, res) => {
+        res.sendFile(path.join(__dirname, "../frontend", "dist", "index.html"));
+    })
+}
 
 server.listen(PORT, () => {
     console.log("listening on PORT:", PORT);

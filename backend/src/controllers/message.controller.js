@@ -5,6 +5,8 @@ export const getMessagesController = async (req, res) => {
         const { lobbyId, canvasId, global } = req.query;
         let filter = {};
 
+        console.log(req.query)
+
         if (lobbyId) {
             filter.lobby = lobbyId;
         } else if (canvasId) {
@@ -29,20 +31,39 @@ export const getMessagesController = async (req, res) => {
     }
 }
 
+// export const sendMessageController = async (req, res) => {
+//     try {
+//         const message = req.validatedMessage;
+
+//         await sendMessageService(message);
+
+//         res.status(201).json({
+//             message: ["Message send successfully"],
+//         })
+//     } catch (error) {
+//         console.error("Error occurred in sendMessageController:", error.message)
+
+//         res.status(500).json({
+//             message: ["Something went wrong"]
+//         })
+//     }
+// }
+
 export const sendMessageController = async (req, res) => {
     try {
         const message = req.validatedMessage;
 
-        await sendMessageService(message);
+        const savedMessage = await sendMessageService(message);
 
         res.status(201).json({
-            message: ["Message send successfully"],
-        })
+            message: ["Message sent successfully"],
+            savedMessage,
+        });
     } catch (error) {
-        console.error("Error occurred in sendMessageController:", error.message)
+        console.error("Error occurred in sendMessageController:", error.message);
 
         res.status(500).json({
-            message: ["Something went wrong"]
-        })
+            message: ["Something went wrong"],
+        });
     }
-}
+};

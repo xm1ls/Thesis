@@ -23,6 +23,7 @@ import {
     createCanvasController,
     deleteCanvasController,
     erasePixelController,
+    updateCanvasColorsController,
 } from '../controllers/canvas.controller.js'
 
 const router = express.Router();
@@ -74,5 +75,7 @@ router.delete(
     validatePixelMiddleware,
     deleteCanvasController
 );
+
+router.put('/:canvasId/colors', protectRoute, updateCanvasColorsController)
 
 export default router;

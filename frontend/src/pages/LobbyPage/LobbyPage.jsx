@@ -4,8 +4,10 @@ import { UserCheck } from "lucide-react";
 import { lobbyStore } from "../../store/lobbyStore.js";
 import { useAuthStore } from "../../store/authStore.js";
 import { useNavbarStore } from "../../store/useNavbarStore.js";
-import { Search, Plus, ListFilter } from "lucide-react";
+import { Search, Plus, ListFilter, Lock, DoorOpen } from "lucide-react";
 import CreateLobbyModal from "../../components/pages/LobbyPage/CreateLobbyModal.jsx";
+import JoinLobbyModal from "../../components/pages/LobbyPage/JoinLobbyModal.jsx";
+import LobbyCard from "../../components/pages/LobbyPage/LobbyCard.jsx";
 import { useCanvasStore } from "../../store/useCanvasStore.js";
 
 const LobbyPage = () => {
@@ -19,7 +21,7 @@ const LobbyPage = () => {
 
   const handleSubmit = async (data) => {
     const { name, password, maxPlayers, width, height, colors } = data;
-    console.log(data)
+    console.log(data);
 
     const lobby = await createLobby({
       name,
@@ -32,14 +34,10 @@ const LobbyPage = () => {
       name,
       width,
       height,
-      colors
+      colors,
     });
 
-    console.log(lobby)
-    console.log(canvas)
-
     if (lobby) {
-      console.log(lobby._id);
       navigate(`/lobby/${lobby._id}`);
     }
   };
@@ -56,115 +54,57 @@ const LobbyPage = () => {
     }
   };
 
-  ///
-
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const { setActions, clearActions } = useNavbarStore();
+  const { setActions, removeActions } = useNavbarStore();
 
   useEffect(() => {
-    setActions([
-      <button
-        onClick={() => setIsModalOpen((prev) => !prev)}
-        className="btn btn-ghost"
-      >
-        <Plus size={20} /> Create
-      </button>,
-    ]);
+    const groupId = "lobby-actions";
+    setActions(
+      groupId,
+      [
+        <button
+          onClick={() => setIsModalOpen((prev) => !prev)}
+          className="btn btn-ghost"
+        >
+          <Plus size={20} /> Create
+        </button>,
+      ],
+      11
+    );
 
-    return () => clearActions();
-  }, [setActions, clearActions]);
-
-  ///
+    return () => removeActions(groupId);
+  }, []);
 
   return (
-    <div className="flex px-20 py-10">
+    <div className="flex px-10 py-10">
       <CreateLobbyModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onSubmit={(data) => {
-          console.log("Lobby Data:", data);
           handleSubmit(data);
         }}
       />
 
-      <ul className="list bg-base-100 m-5 w-full">
+      <JoinLobbyModal
+        isOpen={selectedLobby}
+        lobby={selectedLobby}
+        onClose={() => setSelectedLobby(null)}
+      />
+
+      <div className="bg-base-100 m-5 w-full gap-2 flex flex-col items-center">
         {lobbies?.length > 0 ? (
           lobbies.map((lobby) => (
-            <li
+            <LobbyCard
               key={lobby._id}
-              className="list-row flex items-center justify-between"
-            >
-              <div>
-                <div className="flex">
-                  <div className="font-medium">
-                    {lobby.isPrivate ? "🔒" : "public"}
-                  </div>
-                  <div className="divider divider-horizontal"></div>
-                  <div className="font-bold">{lobby.name}</div>
-                </div>
-                <div className="text-xs uppercase font-semibold opacity-60">
-                  In Lobby: {lobby.playerCount} / {lobby.maxPlayers}
-                </div>
-              </div>
-              <div className="flex items-center gap-5">
-                <div className="text-xs opacity-70">
-                  Host: {lobby?.createdBy?.name || "Unknown"}
-                </div>
-                <button
-                  className="btn btn-ghost"
-                  onClick={() => handleJoinClick(lobby)}
-                >
-                  Join
-                </button>
-              </div>
-            </li>
+              lobby={lobby}
+              handleJoinClick={() => handleJoinClick(lobby)}
+            />
           ))
         ) : (
-          <li className="text-sm text-center opacity-60 py-4">
+          <div className="text-sm text-center opacity-60 py-4">
             No lobbies available.
-          </li>
+          </div>
         )}
-        {selectedLobby && (
-          <JoinLobbyModal
-            lobby={selectedLobby}
-            onClose={() => setSelectedLobby(null)}
-          />
-        )}
-      </ul>
-    </div>
-  );
-};
-
-const JoinLobbyModal = ({ lobby, onClose }) => {
-  const [password, setPassword] = useState("");
-  const { joinLobby } = lobbyStore();
-
-  const navigate = useNavigate();
-
-  const handleJoin = async () => {
-    await joinLobby(lobby._id, password, navigate);
-    onClose();
-  };
-
-  return (
-    <div className="modal modal-open">
-      <div className="modal-box">
-        <h3 className="font-bold text-lg">Enter Password for {lobby.name}</h3>
-        <input
-          type="password"
-          className="input input-bordered w-full my-4"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-        <div className="modal-action">
-          <button className="btn" onClick={handleJoin}>
-            Join
-          </button>
-          <button className="btn btn-ghost" onClick={onClose}>
-            Cancel
-          </button>
-        </div>
       </div>
     </div>
   );

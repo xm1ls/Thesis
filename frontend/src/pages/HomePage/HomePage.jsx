@@ -10,16 +10,9 @@ import "./HomePage.css";
 const HomePage = () => {
   return (
     <div className="flex justify-center items-center h-screen relative">
-        {/* <StatusBar/> */}
       <div className="mb-20">
         <Canvas name="main" />
       </div>
-
-      {/* <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2">
-        <ColorPicker />
-      </div> */}
-      {/* <Chat /> */}
-      {/* <LobbyDialog /> */}
     </div>
   );
 };

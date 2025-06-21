@@ -11,7 +11,7 @@ import { HexColorPicker } from "react-colorful";
 
 const ColorPicker = () => {
   const { setColor, color, colors, setTool } = useCanvasStore();
-  const { setActions, clearActions } = useNavbarStore();
+  const { setActions, removeActions } = useNavbarStore();
 
   const [showColorPicker, setShowColorPicker] = useState(false);
   const [showColorList, setShowColorList] = useState(false);
@@ -32,7 +32,6 @@ const ColorPicker = () => {
       if (colors.length === 0 || normalizedColors.includes(pickedColor)) {
         setColor(pickedColor);
       } else {
-        // Pick is disallowed, fallback to first color if it exists
         if (colors.length > 0) {
           setColor(colors[0]);
         }
@@ -43,60 +42,60 @@ const ColorPicker = () => {
   };
 
   useEffect(() => {
-    setActions([
-      <button
-        className="btn btn-ghost"
-        title="Eraser tool"
-        onClick={() => setTool("eraser")}
-      >
-        <Eraser size={20} />
-      </button>,
+    const groupId = "color-picker";
+    setActions(
+      groupId,
+      [
+        <button
+          key="eraser"
+          className="btn btn-ghost"
+          title="Eraser tool"
+          onClick={() => setTool("eraser")}
+        >
+          <Eraser size={20} />
+        </button>,
 
-      <button
-        className="btn btn-ghost relative"
-        key="paintbrush"
-        title="Paint tool"
-        onClick={() => {
-          setTool("paint")
-          if (colors.length === 0) {
-            setShowColorPicker((prev) => !prev);
-            setShowColorList(false);
-          } else {
-            setShowColorList((prev) => !prev);
-            setShowColorPicker(false);
-          }
-        }}
-      >
-        <Paintbrush size={20} color={color} />
-      </button>,
+        <button
+          className="btn btn-ghost relative"
+          key="paintbrush"
+          title="Paint tool"
+          onClick={() => {
+            setTool("paint");
+            if (colors.length === 0) {
+              setShowColorPicker((prev) => !prev);
+              setShowColorList(false);
+            } else {
+              setShowColorList((prev) => !prev);
+              setShowColorPicker(false);
+            }
+          }}
+        >
+          <Paintbrush size={20} color={color} />
+        </button>,
 
-      <button
-        className="btn btn-ghost"
-        key="pipette"
-        onClick={useEyedropper}
-        title="Eyedropper tool"
-      >
-        <Pipette size={20} />
-      </button>,
-    ]);
+        <button
+          className="btn btn-ghost"
+          key="pipette"
+          onClick={useEyedropper}
+          title="Eyedropper tool"
+        >
+          <Pipette size={20} />
+        </button>,
+      ],
+      11
+    );
 
-    if (colors?.length > 0 && !colors?.includes(color)) {
-      setColor(colors[0]);
-    }
-
-    return () => clearActions();
-  }, [setActions, clearActions, colors, color, setColor]);
+    return () => removeActions(groupId);
+  }, [colors, color, setColor]);
 
   return (
     <div className="relative">
-      {/* Color Picker dropdown */}
       {showColorPicker && colors.length === 0 && (
         <div className="fixed bottom-25 left-1/2 transform -translate-x-1/2 z-100">
           <HexColorPicker color={color} onChange={setColor} />
         </div>
       )}
 
-      {/* Color list dropdown */}
       {showColorList && colors.length > 0 && (
         <div className="fixed bottom-25 left-1/2 transform -translate-x-1/2 z-100 bg-base-200 p-2 rounded shadow flex gap-2">
           {colors.map((c) => (

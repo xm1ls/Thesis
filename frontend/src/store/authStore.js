@@ -4,7 +4,7 @@ import { io } from 'socket.io-client'
 import toast from "react-hot-toast";
 import { lobbyStore } from './lobbyStore';
 
-const BASE_URL = "http://localhost:3000";
+const BASE_URL = import.meta.env.MODE === "development" ? "http://localhost:3000" : "/api";
 
 export const useAuthStore = create((set, get) => ({
     authUser: null,
@@ -20,7 +20,6 @@ export const useAuthStore = create((set, get) => ({
             set({ authUser: res.data, currentLobby: res.data.currentLobby })
             lobbyStore.setState({ currentLobbyId: res.data.currentLobby });
 
-            console.log(get().authUser)
             get().connectSocket();
         } catch (error) {
             set({ authUser: null })

@@ -12,6 +12,7 @@ import {
   Undo2,
 } from "lucide-react";
 import { lobbyStore } from "../store/lobbyStore";
+import { useMemo } from "react";
 
 const Navbar = () => {
   const location = useLocation();
@@ -19,13 +20,27 @@ const Navbar = () => {
 
   const { logout, authUser } = useAuthStore();
   const { currentLobbyId } = lobbyStore();
-  const { actions } = useNavbarStore();
+
+  const { actionGroups } = useNavbarStore();
+  // const sortedGroups = [...actionGroups].sort(
+  //   (a, b) => (a.order ?? 0) - (b.order ?? 0)
+  // );
+
+  // const preNavGroups = sortedGroups.filter((group) => group.priority < 10);
+  // const postNavGroups = sortedGroups.filter((group) => group.priority >= 10);
+
+  const sortedGroups = useMemo(() => {
+    return Object.values(actionGroups).sort((a, b) => a.priority - b.priority);
+  }, [actionGroups]);
+
+  const preNavGroups = sortedGroups.filter((group) => group.priority < 10);
+  const postNavGroups = sortedGroups.filter((group) => group.priority >= 10);
 
   const isOnCurrentLobbyPage = location.pathname === `/lobby/${currentLobbyId}`;
   return (
     <>
       {authUser && (
-        <div className="fixed bottom-5 left-1/2 transform -translate-x-1/2 z-100 flex gap-5 items-center">
+        <div className="fixed bottom-5 left-1/2 transform -translate-x-1/2 z-100 flex gap-4 items-center">
           {currentLobbyId && !isOnCurrentLobbyPage && (
             <ul className="menu menu-horizontal menu-sm bg-base-300 rounded-box">
               <li>
@@ -35,6 +50,17 @@ const Navbar = () => {
               </li>
             </ul>
           )}
+
+          {preNavGroups.map((group, groupIndex) => (
+            <ul
+              key={group.key || groupIndex}
+              className="menu menu-horizontal menu-sm bg-base-300 rounded-box"
+            >
+              {group.actions.map((action, i) => (
+                <li key={i}>{action}</li>
+              ))}
+            </ul>
+          ))}
 
           <ul className="menu menu-horizontal menu-sm bg-base-300 rounded-box">
             <li>
@@ -54,15 +80,16 @@ const Navbar = () => {
             </li>
           </ul>
 
-          {actions && (
-            <ul className="menu menu-horizontal menu-sm bg-base-300 rounded-box">
-              {Array.isArray(actions) ? (
-                actions.map((action, i) => <li key={i}>{action}</li>)
-              ) : (
-                <li>{actions}</li>
-              )}
+          {postNavGroups.map((group, groupIndex) => (
+            <ul
+              key={group.key || groupIndex}
+              className="menu menu-horizontal menu-sm bg-base-300 rounded-box"
+            >
+              {group.actions.map((action, i) => (
+                <li key={i}>{action}</li>
+              ))}
             </ul>
-          )}
+          ))}
         </div>
       )}
     </>

@@ -4,11 +4,11 @@ import { useNavbarStore } from "../store/useNavbarStore";
 import ProfileCard from "../components/ProfileCard";
 import { LogOut, SunMoon } from "lucide-react";
 
-import { useThemeStore } from "../store/useThemeStore"
+import { useThemeStore } from "../store/useThemeStore";
 
 const ProfilePage = () => {
   const { logout, authUser } = useAuthStore();
-  const { setActions, clearActions } = useNavbarStore();
+  const { setActions, removeActions } = useNavbarStore();
   const { setTheme } = useThemeStore();
 
   const [userInfo, setUserInfo] = useState({
@@ -21,23 +21,38 @@ const ProfilePage = () => {
   });
 
   useEffect(() => {
-    setActions([
-      <button onClick={() => logout()} className="btn btn-ghost">
-        <LogOut size={20} /> Leave
-      </button>,
-      <button onClick={() => setTheme()} className="btn btn-ghost">
-        <SunMoon size={20} />
-      </button>,
-    ]);
+    // const groupId = "profile-actions";
+    setActions(
+      "profile-leave",
+      [
+        <button onClick={() => logout()} className="btn btn-ghost" key="leave">
+          <LogOut size={20} /> Leave
+        </button>,
+      ],
+      9
+    );
 
-    return () => clearActions();
-  }, [setActions, clearActions]);
+    setActions(
+      "profile-theme",
+      [
+        <button onClick={() => setTheme()} className="btn btn-ghost" key="theme">
+          <SunMoon size={20} />
+        </button>,
+      ],
+      11
+    );
+
+    return () => {
+      removeActions("profile-leave");
+      removeActions("profile-theme");
+    }
+  }, []);
 
   return (
     <div className="flex justify-center items-center h-screen relative">
       <ProfileCard
         name={authUser.name}
-        pixelPlaced={1234}
+        pixelPlaced={authUser.pixelPlaced || "0"}
         favouriteColor="#3498db"
         isOnline={true}
         currentLobby="Lobby A"
