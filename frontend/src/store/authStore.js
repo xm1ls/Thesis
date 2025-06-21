@@ -4,7 +4,7 @@ import { io } from 'socket.io-client'
 import toast from "react-hot-toast";
 import { lobbyStore } from './lobbyStore';
 
-const BASE_URL = import.meta.env.MODE === "development" ? "http://localhost:3000" : "/api";
+const BASE_URL = import.meta.env.MODE === "development" ? "http://localhost:3000" : "https://thesis-ehnk.onrender.com";
 
 export const useAuthStore = create((set, get) => ({
     authUser: null,
